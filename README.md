@@ -1,3 +1,5 @@
+#The source code will be uploaded soon after the final testing is complete.
+
 # BLE AutoLock
 
 BLE AutoLock is an unofficial Android proof of concept for studying BYD Watch-style Bluetooth-key authentication, BLE vehicle control, and server REST fallback behavior.
