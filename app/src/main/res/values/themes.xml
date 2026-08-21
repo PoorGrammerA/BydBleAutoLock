@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.BydBleKeyControl" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/vehicle_primary</item>
+        <item name="colorPrimaryVariant">@color/vehicle_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/vehicle_success</item>
+        <item name="colorOnSecondary">@color/vehicle_background</item>
+        <item name="colorSurface">@color/vehicle_surface</item>
+        <item name="colorOnSurface">@color/vehicle_text_primary</item>
+        <item name="android:windowBackground">@color/vehicle_background</item>
+        <item name="android:statusBarColor">@color/vehicle_background</item>
+        <item name="android:navigationBarColor">@color/vehicle_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+</resources>
