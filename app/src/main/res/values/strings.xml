@@ -115,6 +115,9 @@
     <string name="control_failed">Failed</string>
     <string name="control_pending">Pending</string>
     <string name="control_unconfirmed">Unconfirmed</string>
+    <string name="control_ignored">Ignored</string>
+    <string name="automatic_control_paused_charging">Automatic lock/unlock paused while the phone is connected to power</string>
+    <string name="automatic_command_ignored_charging">%1$s ignored because the phone is connected to power</string>
     <string name="ble_sending">%1$s: sending BLE command</string>
     <string name="ble_command_sent">%1$s command sent</string>
     <string name="ble_command_confirmed">%1$s confirmed by vehicle</string>

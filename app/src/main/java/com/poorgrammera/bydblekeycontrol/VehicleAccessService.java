@@ -13,9 +13,12 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -205,6 +208,8 @@ public class VehicleAccessService extends Service {
     private boolean authInProgress;
     private boolean restRecoveryInProgress;
     private boolean reconnectPending;
+    private boolean phoneConnectedToPower;
+    private boolean batteryReceiverRegistered;
     private int directReconnectAttempt;
     private WatchBleKeyFlowManager bleFlow;
     private Runnable directReconnectRunnable;
@@ -212,6 +217,12 @@ public class VehicleAccessService extends Service {
     private String lastBleConnectionLog = "";
     private long lastNotificationUpdateAt;
     private String lastNotificationText = "";
+
+    private final BroadcastReceiver batteryStateReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context context, Intent intent) {
+            updatePowerConnectionState(intent);
+        }
+    };
 
     private final Runnable connectedRssiPoll = new Runnable() {
         @Override public void run() {
@@ -250,7 +261,9 @@ public class VehicleAccessService extends Service {
 
     private final Runnable countdownTicker = new Runnable() {
         @Override public void run() {
-            if (lastAutoControlAt > 0L) {
+            if (phoneConnectedToPower) {
+                setCountdown(getString(R.string.automatic_control_paused_charging));
+            } else if (lastAutoControlAt > 0L) {
                 long remaining = AUTO_CONTROL_COOLDOWN_MS - (System.currentTimeMillis() - lastAutoControlAt);
                 if (remaining > 0L) setCountdown("Automatic-control cooldown: " + secondsCeil(remaining) + " seconds remaining");
                 else if (!countdownText.isEmpty()) setCountdown("");
@@ -288,6 +301,10 @@ public class VehicleAccessService extends Service {
         storage = new StorageManager(this);
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification(getString(R.string.notification_waiting)));
+        Intent batteryState = ContextCompat.registerReceiver(this, batteryStateReceiver,
+                new IntentFilter(Intent.ACTION_BATTERY_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        batteryReceiverRegistered = true;
+        if (batteryState != null) updatePowerConnectionState(batteryState);
         handler.post(connectedRssiPoll);
         handler.post(countdownTicker);
         handler.post(reconnectScanWatchdog);
@@ -330,6 +347,10 @@ public class VehicleAccessService extends Service {
     @Override public void onDestroy() {
         serviceRunning = false;
         handler.removeCallbacksAndMessages(null);
+        if (batteryReceiverRegistered) {
+            unregisterReceiver(batteryStateReceiver);
+            batteryReceiverRegistered = false;
+        }
         stopScan();
         if (bleFlow != null) {
             BleConnectionCoordinator.release(BleConnectionCoordinator.Owner.VEHICLE_ACCESS_SERVICE, bleFlow);
@@ -571,6 +592,11 @@ public class VehicleAccessService extends Service {
     }
 
     private void processAutomaticThresholds() {
+        if (phoneConnectedToPower) {
+            resetAutomaticThresholdDwell();
+            setCountdown(getString(R.string.automatic_control_paused_charging));
+            return;
+        }
         if (recentRssiSamples.size() < RSSI_MEDIAN_WINDOW || Float.isNaN(smoothedRssi)) return;
         long now = System.currentTimeMillis();
         long cooldownRemaining = AUTO_CONTROL_COOLDOWN_MS - (now - lastAutoControlAt);
@@ -624,6 +650,39 @@ public class VehicleAccessService extends Service {
         return Math.max(1L, (millis + 999L) / 1_000L);
     }
 
+    private void updatePowerConnectionState(Intent batteryState) {
+        if (batteryState == null) return;
+        int plugged = batteryState.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+        int batteryStatus = batteryState.getIntExtra(BatteryManager.EXTRA_STATUS,
+                BatteryManager.BATTERY_STATUS_UNKNOWN);
+        boolean connected = plugged != 0 || batteryStatus == BatteryManager.BATTERY_STATUS_CHARGING;
+        if (phoneConnectedToPower == connected) return;
+
+        phoneConnectedToPower = connected;
+        resetAutomaticThresholdDwell();
+        if (connected) {
+            String message = getString(R.string.automatic_control_paused_charging);
+            setCountdown(message);
+            recordControlEvent("AUTO", getString(R.string.control_ignored), message);
+        } else {
+            setCountdown("");
+        }
+    }
+
+    private void resetAutomaticThresholdDwell() {
+        unlockThresholdReachedAt = 0L;
+        lockThresholdReachedAt = 0L;
+    }
+
+    private boolean ignoreAutomaticCommandWhileCharging(String command, boolean automatic) {
+        if (!automatic || !phoneConnectedToPower) return false;
+        String message = getString(R.string.automatic_command_ignored_charging, label(command));
+        recordControlEvent("AUTO", getString(R.string.control_ignored), message);
+        publishImportant(status.scanner, currentBleText(), message,
+                getString(R.string.automatic_control_paused_charging));
+        return true;
+    }
+
     private void setCountdown(String text) {
         if (text.equals(countdownText)) return;
         countdownText = text;
@@ -665,6 +724,7 @@ public class VehicleAccessService extends Service {
     }
 
     private void executeCommand(String command, boolean automatic) {
+        if (ignoreAutomaticCommandWhileCharging(command, automatic)) return;
         Integer bleFunction = bleFunctionFor(command);
         if (bleFunction != null && bleFlow != null && bleFlow.getCurrentState() == WatchBleKeyFlowManager.FlowState.READY) {
             recordControlEvent("BLE", getString(R.string.control_attempt), label(command));
@@ -715,6 +775,7 @@ public class VehicleAccessService extends Service {
     }
 
     private void executeRest(String command, boolean retryAfterRefresh, boolean automatic) {
+        if (ignoreAutomaticCommandWhileCharging(command, automatic)) return;
         TokenInfoBean token = WatchCredentialManager.restoreToken(storage);
         if (token == null || TextUtils.isEmpty(token.getControlPwd())) {
             handleRestFailure("REST token is missing.", command, retryAfterRefresh, automatic);

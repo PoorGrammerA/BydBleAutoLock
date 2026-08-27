@@ -29,6 +29,7 @@ Click the thumbnail to watch the demo on YouTube.
 ## Important security and safety notes
 
 - Automatic control is based on BLE address and signal strength. BLE addresses and radio signals are not proof of physical proximity and can be spoofed or relayed.
+- Automatic RSSI-based controls are paused while the phone is connected to wired or wireless power; manual controls remain available.
 - This PoC intentionally retains verbose protocol logging. Logcat can contain decrypted server responses, partial credentials, vehicle identifiers, BLE frames, and QR-related values. Never publish logs without reviewing and redacting them.
 - Some controls fall back to the REST API when BLE is unavailable. Review `VehicleAccessService` before enabling automatic control on a real vehicle.
 - After a BLE write, the app waits up to three seconds for a matching `0x24/E5` vehicle response. Result `0x01` is reported as vehicle-confirmed success; a timeout remains unconfirmed and is not automatically retried over REST to avoid a duplicate action.
