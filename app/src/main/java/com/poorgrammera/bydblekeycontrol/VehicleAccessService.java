@@ -58,7 +58,6 @@ public class VehicleAccessService extends Service {
     private static final String TAG = "VehicleAccessService";
     private static final String CHANNEL_ID = "vehicle_access";
     private static final int NOTIFICATION_ID = 41;
-    private static final long AUTO_CONTROL_COOLDOWN_MS = 30_000L;
     private static final long AUTH_RETRY_MS = 15_000L;
     private static final long RECENT_VEHICLE_SIGHTING_MS = 15_000L;
     private static final long RECONNECT_SCAN_STALE_MS = 12_000L;
@@ -261,12 +260,18 @@ public class VehicleAccessService extends Service {
 
     private final Runnable countdownTicker = new Runnable() {
         @Override public void run() {
-            if (phoneConnectedToPower) {
+            if (isAutomaticControlPausedForPower()) {
                 setCountdown(getString(R.string.automatic_control_paused_charging));
-            } else if (lastAutoControlAt > 0L) {
-                long remaining = AUTO_CONTROL_COOLDOWN_MS - (System.currentTimeMillis() - lastAutoControlAt);
-                if (remaining > 0L) setCountdown("Automatic-control cooldown: " + secondsCeil(remaining) + " seconds remaining");
-                else if (!countdownText.isEmpty()) setCountdown("");
+            } else {
+                if (getString(R.string.automatic_control_paused_charging).equals(countdownText)) {
+                    setCountdown("");
+                }
+                if (lastAutoControlAt > 0L) {
+                    long remaining = autoControlCooldownMs() - (System.currentTimeMillis() - lastAutoControlAt);
+                    if (remaining > 0L) setCountdown(getString(
+                            R.string.automatic_control_cooldown_remaining, secondsCeil(remaining)));
+                    else if (!countdownText.isEmpty()) setCountdown("");
+                }
             }
             handler.postDelayed(this, 1_000L);
         }
@@ -592,18 +597,19 @@ public class VehicleAccessService extends Service {
     }
 
     private void processAutomaticThresholds() {
-        if (phoneConnectedToPower) {
+        if (isAutomaticControlPausedForPower()) {
             resetAutomaticThresholdDwell();
             setCountdown(getString(R.string.automatic_control_paused_charging));
             return;
         }
         if (recentRssiSamples.size() < RSSI_MEDIAN_WINDOW || Float.isNaN(smoothedRssi)) return;
         long now = System.currentTimeMillis();
-        long cooldownRemaining = AUTO_CONTROL_COOLDOWN_MS - (now - lastAutoControlAt);
+        long cooldownRemaining = autoControlCooldownMs() - (now - lastAutoControlAt);
         if (lastAutoControlAt > 0L && cooldownRemaining > 0L) {
             unlockThresholdReachedAt = 0L;
             lockThresholdReachedAt = 0L;
-            setCountdown("Automatic-control cooldown: " + secondsCeil(cooldownRemaining) + " seconds remaining");
+            setCountdown(getString(R.string.automatic_control_cooldown_remaining,
+                    secondsCeil(cooldownRemaining)));
             return;
         }
         int unlock = storage.getUnlockRssi();
@@ -616,7 +622,7 @@ public class VehicleAccessService extends Service {
                     nearVehicle = true;
                     unlockThresholdReachedAt = 0L;
                     lastAutoControlAt = now;
-                    setCountdown("Automatic-control cooldown: 30 seconds remaining");
+                    showAutomaticControlCooldown();
                     executeCommand(COMMAND_UNLOCK, true);
                     if (storage.isAutoAcOnUnlock()) executeRest(COMMAND_START_CLIMATE, true, true);
                 } else {
@@ -634,7 +640,7 @@ public class VehicleAccessService extends Service {
                     nearVehicle = false;
                     lockThresholdReachedAt = 0L;
                     lastAutoControlAt = now;
-                    setCountdown("Automatic-control cooldown: 30 seconds remaining");
+                    showAutomaticControlCooldown();
                     executeCommand(COMMAND_LOCK, true);
                 } else {
                     setCountdown("Lock condition: " + secondsCeil(LOCK_DWELL_MS - (now - lockThresholdReachedAt)) + " seconds remaining");
@@ -650,6 +656,19 @@ public class VehicleAccessService extends Service {
         return Math.max(1L, (millis + 999L) / 1_000L);
     }
 
+    private long autoControlCooldownMs() {
+        return storage.getAutoControlCooldownSeconds() * 1_000L;
+    }
+
+    private void showAutomaticControlCooldown() {
+        int seconds = storage.getAutoControlCooldownSeconds();
+        if (seconds == 0) {
+            setCountdown("");
+        } else {
+            setCountdown(getString(R.string.automatic_control_cooldown_remaining, seconds));
+        }
+    }
+
     private void updatePowerConnectionState(Intent batteryState) {
         if (batteryState == null) return;
         int plugged = batteryState.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
@@ -660,7 +679,7 @@ public class VehicleAccessService extends Service {
 
         phoneConnectedToPower = connected;
         resetAutomaticThresholdDwell();
-        if (connected) {
+        if (connected && storage.isPauseAutoControlWhileCharging()) {
             String message = getString(R.string.automatic_control_paused_charging);
             setCountdown(message);
             recordControlEvent("AUTO", getString(R.string.control_ignored), message);
@@ -674,8 +693,12 @@ public class VehicleAccessService extends Service {
         lockThresholdReachedAt = 0L;
     }
 
+    private boolean isAutomaticControlPausedForPower() {
+        return phoneConnectedToPower && storage.isPauseAutoControlWhileCharging();
+    }
+
     private boolean ignoreAutomaticCommandWhileCharging(String command, boolean automatic) {
-        if (!automatic || !phoneConnectedToPower) return false;
+        if (!automatic || !isAutomaticControlPausedForPower()) return false;
         String message = getString(R.string.automatic_command_ignored_charging, label(command));
         recordControlEvent("AUTO", getString(R.string.control_ignored), message);
         publishImportant(status.scanner, currentBleText(), message,

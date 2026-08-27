@@ -29,7 +29,7 @@ Click the thumbnail to watch the demo on YouTube.
 ## Important security and safety notes
 
 - Automatic control is based on BLE address and signal strength. BLE addresses and radio signals are not proof of physical proximity and can be spoofed or relayed.
-- Automatic RSSI-based controls are paused while the phone is connected to wired or wireless power; manual controls remain available.
+- Automatic RSSI-based controls are paused by default while the phone is connected to wired or wireless power. This safety pause can be disabled in automatic-control settings; manual controls remain available.
 - This PoC intentionally retains verbose protocol logging. Logcat can contain decrypted server responses, partial credentials, vehicle identifiers, BLE frames, and QR-related values. Never publish logs without reviewing and redacting them.
 - Some controls fall back to the REST API when BLE is unavailable. Review `VehicleAccessService` before enabling automatic control on a real vehicle.
 - After a BLE write, the app waits up to three seconds for a matching `0x24/E5` vehicle response. Result `0x01` is reported as vehicle-confirmed success; a timeout remains unconfirmed and is not automatically retried over REST to avoid a duplicate action.
@@ -77,6 +77,7 @@ The release build is unsigned unless you configure your own signing key. Never c
 3. Create the QR code and scan it in the official BYD app.
 4. Wait for token, vehicle, and Bluetooth-key provisioning to complete.
 5. Review RSSI thresholds and automatic-control options before starting monitoring.
+   The automatic lock/unlock cooldown can be adjusted from 0 to 60 seconds and defaults to 30 seconds.
 6. Use **Stop service** to keep monitoring disabled across app restarts and device reboots. Starting it again explicitly re-enables boot restoration.
 
 ## Project structure

@@ -42,6 +42,7 @@ public class VehicleControlActivity extends AppCompatActivity {
     private TextView controlLogView;
     private TextView unlockLabel;
     private TextView lockLabel;
+    private TextView autoControlCooldownLabel;
     private TextView thresholdWarning;
     private TextView autoControlCountdown;
     private TextView tempLabel;
@@ -55,8 +56,10 @@ public class VehicleControlActivity extends AppCompatActivity {
     private TextView bluetoothPermissionMessage;
     private View bluetoothPermissionBanner;
     private CheckBox autoClimate;
+    private CheckBox pauseAutoControlWhileCharging;
     private SeekBar unlockSeek;
     private SeekBar lockSeek;
+    private SeekBar autoControlCooldownSeek;
 
     private final Runnable statusUpdater = new Runnable() {
         @Override public void run() {
@@ -122,6 +125,7 @@ public class VehicleControlActivity extends AppCompatActivity {
         controlLogView = findViewById(R.id.controlLogView);
         unlockLabel = findViewById(R.id.unlockThresholdLabel);
         lockLabel = findViewById(R.id.lockThresholdLabel);
+        autoControlCooldownLabel = findViewById(R.id.autoControlCooldownLabel);
         thresholdWarning = findViewById(R.id.thresholdWarning);
         autoControlCountdown = findViewById(R.id.autoControlCountdown);
         tempLabel = findViewById(R.id.tempLabel);
@@ -134,8 +138,10 @@ public class VehicleControlActivity extends AppCompatActivity {
         bluetoothPermissionMessage = findViewById(R.id.bluetoothPermissionMessage);
         bluetoothPermissionBanner = findViewById(R.id.bluetoothPermissionBanner);
         autoClimate = findViewById(R.id.autoClimateCheck);
+        pauseAutoControlWhileCharging = findViewById(R.id.pauseAutoControlWhileChargingCheck);
         unlockSeek = findViewById(R.id.unlockThresholdSeek);
         lockSeek = findViewById(R.id.lockThresholdSeek);
+        autoControlCooldownSeek = findViewById(R.id.autoControlCooldownSeek);
     }
 
     private void bindControls() {
@@ -154,6 +160,25 @@ public class VehicleControlActivity extends AppCompatActivity {
         };
         unlockSeek.setOnSeekBarChangeListener(listener);
         lockSeek.setOnSeekBarChangeListener(listener);
+
+        autoControlCooldownSeek.setMax(StorageManager.MAX_AUTO_CONTROL_COOLDOWN_SECONDS
+                - StorageManager.MIN_AUTO_CONTROL_COOLDOWN_SECONDS);
+        autoControlCooldownSeek.setProgress(storage.getAutoControlCooldownSeconds()
+                - StorageManager.MIN_AUTO_CONTROL_COOLDOWN_SECONDS);
+        autoControlCooldownSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                storage.setAutoControlCooldownSeconds(progress
+                        + StorageManager.MIN_AUTO_CONTROL_COOLDOWN_SECONDS);
+                renderAutoControlCooldown();
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+        renderAutoControlCooldown();
+
+        pauseAutoControlWhileCharging.setChecked(storage.isPauseAutoControlWhileCharging());
+        pauseAutoControlWhileCharging.setOnCheckedChangeListener((buttonView, checked) ->
+                storage.setPauseAutoControlWhileCharging(checked));
 
         autoClimate.setChecked(storage.isAutoAcOnUnlock());
         autoClimate.setOnCheckedChangeListener((buttonView, checked) -> storage.setAutoAcOnUnlock(checked));
@@ -247,6 +272,11 @@ public class VehicleControlActivity extends AppCompatActivity {
         } else {
             thresholdWarning.setVisibility(View.GONE);
         }
+    }
+
+    private void renderAutoControlCooldown() {
+        autoControlCooldownLabel.setText(getString(R.string.auto_control_cooldown,
+                storage.getAutoControlCooldownSeconds()));
     }
 
     private void changeTemperature(float delta) {

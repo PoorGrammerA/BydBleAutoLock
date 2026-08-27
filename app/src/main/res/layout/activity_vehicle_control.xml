@@ -246,6 +246,30 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textColor="@color/vehicle_warning" />
+                <TextView
+                    android:id="@+id/autoControlCooldownLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@color/vehicle_text_secondary" />
+                <SeekBar
+                    android:id="@+id/autoControlCooldownSeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="60"
+                    android:progress="30"
+                    android:progressTint="@color/vehicle_primary"
+                    android:thumbTint="@color/vehicle_primary" />
+                <CheckBox
+                    android:id="@+id/pauseAutoControlWhileChargingCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:buttonTint="@color/vehicle_primary"
+                    android:checked="true"
+                    android:text="@string/pause_auto_control_while_charging"
+                    android:textColor="@color/vehicle_text_primary"
+                    android:textSize="15sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

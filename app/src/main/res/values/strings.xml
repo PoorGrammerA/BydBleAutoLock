@@ -45,6 +45,8 @@
     <string name="unlock_threshold">Unlock threshold: %1$d dBm (approaching at or above this value)</string>
     <string name="lock_threshold">Lock threshold: %1$d dBm (leaving at or below this value)</string>
     <string name="threshold_warning">Warning: Keep lock and unlock thresholds at least %1$d dBm apart to avoid repeated actions.</string>
+    <string name="auto_control_cooldown">Automatic control cooldown: %1$d seconds</string>
+    <string name="pause_auto_control_while_charging">Pause automatic lock/unlock while connected to power</string>
     <string name="climate_temperature">Climate temperature: %1$.1f°C (17–27°C)</string>
     <string name="battery_optimization_allowed">Battery optimization exclusion is allowed.</string>
     <string name="battery_optimization_needed">This app is not excluded from battery optimization. Automatic BLE detection may be limited after the screen turns off.</string>
@@ -118,6 +120,7 @@
     <string name="control_ignored">Ignored</string>
     <string name="automatic_control_paused_charging">Automatic lock/unlock paused while the phone is connected to power</string>
     <string name="automatic_command_ignored_charging">%1$s ignored because the phone is connected to power</string>
+    <string name="automatic_control_cooldown_remaining">Automatic-control cooldown: %1$d seconds remaining</string>
     <string name="ble_sending">%1$s: sending BLE command</string>
     <string name="ble_command_sent">%1$s command sent</string>
     <string name="ble_command_confirmed">%1$s confirmed by vehicle</string>

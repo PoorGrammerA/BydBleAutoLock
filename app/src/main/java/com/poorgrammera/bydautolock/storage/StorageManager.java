@@ -43,13 +43,18 @@ public class StorageManager {
     private static final String KEY_UNLOCK_RSSI = "unlock_rssi_threshold";
     private static final String KEY_LOCK_RSSI = "lock_rssi_threshold";
     private static final String KEY_RSSI_ALPHA = "rssi_smoothing_alpha";
+    private static final String KEY_AUTO_CONTROL_COOLDOWN_SECONDS = "auto_control_cooldown_seconds";
     private static final int MIN_RSSI_THRESHOLD_DBM = -89;
     private static final int MAX_RSSI_THRESHOLD_DBM = -30;
+    public static final int MIN_AUTO_CONTROL_COOLDOWN_SECONDS = 0;
+    public static final int MAX_AUTO_CONTROL_COOLDOWN_SECONDS = 60;
+    public static final int DEFAULT_AUTO_CONTROL_COOLDOWN_SECONDS = 30;
 
     // Control Switches
     private static final String KEY_SERVICE_ENABLED = "service_enabled";
     private static final String KEY_AUTO_AC_ON_UNLOCK = "auto_ac_on_unlock";
     private static final String KEY_AUTO_AC_OFF_ON_LOCK = "auto_ac_off_on_lock";
+    private static final String KEY_PAUSE_AUTO_CONTROL_WHILE_CHARGING = "pause_auto_control_while_charging";
     private static final String KEY_AC_TARGET_TEMP = "ac_target_temp";
     private static final String KEY_AC_WIND_LEVEL = "ac_wind_level";
     private static final String KEY_AC_CYCLE_MODE = "ac_cycle_mode";
@@ -215,6 +220,21 @@ public class StorageManager {
         prefs.edit().putFloat(KEY_RSSI_ALPHA, value).apply();
     }
 
+    public int getAutoControlCooldownSeconds() {
+        return clampAutoControlCooldownSeconds(prefs.getInt(KEY_AUTO_CONTROL_COOLDOWN_SECONDS,
+                DEFAULT_AUTO_CONTROL_COOLDOWN_SECONDS));
+    }
+
+    public void setAutoControlCooldownSeconds(int value) {
+        prefs.edit().putInt(KEY_AUTO_CONTROL_COOLDOWN_SECONDS,
+                clampAutoControlCooldownSeconds(value)).apply();
+    }
+
+    private int clampAutoControlCooldownSeconds(int value) {
+        return Math.max(MIN_AUTO_CONTROL_COOLDOWN_SECONDS,
+                Math.min(MAX_AUTO_CONTROL_COOLDOWN_SECONDS, value));
+    }
+
     public boolean isServiceEnabled() {
         return prefs.getBoolean(KEY_SERVICE_ENABLED, true);
     }
@@ -237,6 +257,14 @@ public class StorageManager {
 
     public void setAutoAcOffOnLock(boolean value) {
         prefs.edit().putBoolean(KEY_AUTO_AC_OFF_ON_LOCK, value).apply();
+    }
+
+    public boolean isPauseAutoControlWhileCharging() {
+        return prefs.getBoolean(KEY_PAUSE_AUTO_CONTROL_WHILE_CHARGING, true);
+    }
+
+    public void setPauseAutoControlWhileCharging(boolean value) {
+        prefs.edit().putBoolean(KEY_PAUSE_AUTO_CONTROL_WHILE_CHARGING, value).apply();
     }
 
     public float getAcTargetTemp() {
