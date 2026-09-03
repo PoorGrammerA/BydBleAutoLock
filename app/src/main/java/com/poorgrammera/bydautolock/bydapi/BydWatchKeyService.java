@@ -508,6 +508,7 @@ public class BydWatchKeyService {
         treeMapM.put("watchBrand", WATCH_BRAND);
         treeMapM.put("watchAppVersion", String.valueOf(watchAppVersion));
         treeMapM.put("watchOs", "0");
+        treeMapM.put("reqTimestamp", reqTimestamp);
         String lang = resolveLanguage(countryCode);
         treeMapM.put("language", lang);
         treeMapM.put("countryCode", countryCode);
@@ -571,6 +572,7 @@ public class BydWatchKeyService {
         treeMapM.put("watchBrand", WATCH_BRAND);
         treeMapM.put("watchAppVersion", String.valueOf(watchAppVersion));
         treeMapM.put("watchOs", "0");
+        treeMapM.put("reqTimestamp", reqTimestamp);
         String lang = resolveLanguage(countryCode);
         treeMapM.put("language", lang);
         treeMapM.put("countryCode", countryCode);
