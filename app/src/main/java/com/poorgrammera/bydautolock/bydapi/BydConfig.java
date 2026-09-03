@@ -1,8 +1,11 @@
 package com.poorgrammera.bydautolock.bydapi;
 
+import android.content.Context;
+
 /**
  * Holds BYD integration settings.
- * Manages API URLs and country codes by region (Korea, Europe, and others).
+ * Manages API URLs and country codes for all 116 official BYD overseas countries
+ * mapped across 16 server cluster nodes.
  */
 public class BydConfig {
     private String baseUrl;
@@ -18,99 +21,140 @@ public class BydConfig {
     }
 
     /**
-     * Creates configuration dynamically based on region code.
-     * Supports 15 official BYD overseas production regions.
+     * Creates configuration dynamically based on country or region code.
+     * Supports all 116 official BYD overseas countries across all 16 server nodes.
+     *
+     * @param region ISO country code (e.g. "KR", "IE", "DE", "AU", "MX") or legacy region code ("EU").
      */
     public static BydConfig fromRegion(String region) {
-        if (region == null) region = "KR";
-        String regionUpper = region.toUpperCase().trim();
-        String baseUrl;
+        if (region == null || region.trim().isEmpty()) {
+            region = "KR";
+        }
+        String regionUpper = BydCountryRepository.normalizeCountryCode(region);
+
+        // 1. South Korea (Node 11) - Dedicated Alibaba Cloud Seoul Region
+        if ("KR".equals(regionUpper)) {
+            return new BydConfig(
+                    BydCountryRepository.getBaseUrlForNode("11"),
+                    "KR",
+                    "ko",
+                    "Asia/Seoul"
+            );
+        }
+
+        // 2. Legacy "EU" representation
+        if ("EU".equals(regionUpper)) {
+            return new BydConfig(
+                    BydCountryRepository.getBaseUrlForNode("1"),
+                    "GB",
+                    "en",
+                    "Europe/London"
+            );
+        }
+
+        // 3. Specific known country overrides for exact timezones
+        String nodeName = BydCountryRepository.getNodeForDomain(regionUpper);
+        String baseUrl = BydCountryRepository.getBaseUrlForNode(nodeName);
         String countryCode = regionUpper;
         String language = "en";
-        String timeZone = "UTC";
+        String timeZone = BydCountryRepository.getDefaultTimezoneForNode(nodeName);
 
         switch (regionUpper) {
-            case "KR":
-                baseUrl = "https://dilinkappoversea-kr-ali.byd.auto";
-                language = "ko";
-                timeZone = "Asia/Seoul";
+            case "IE":
+                timeZone = "Europe/Dublin";
                 break;
-            case "EU":
-                baseUrl = "https://dilinkappoversea-eu.byd.auto";
-                countryCode = "GB"; // Standard representation for overseas app
-                language = "en";
+            case "GB":
+            case "UK":
                 timeZone = "Europe/London";
                 break;
+            case "DE":
+                timeZone = "Europe/Berlin";
+                break;
+            case "FR":
+                timeZone = "Europe/Paris";
+                break;
+            case "IT":
+                timeZone = "Europe/Rome";
+                break;
+            case "ES":
+                timeZone = "Europe/Madrid";
+                break;
             case "JP":
-                baseUrl = "https://dilinkappoversea-jp.byd.auto";
                 language = "ja";
                 timeZone = "Asia/Tokyo";
                 break;
             case "SG":
-                baseUrl = "https://dilinkappoversea-sg.byd.auto";
-                language = "en";
                 timeZone = "Asia/Singapore";
                 break;
             case "AU":
-                baseUrl = "https://dilinkappoversea-au.byd.auto";
-                language = "en";
                 timeZone = "Australia/Sydney";
                 break;
             case "BR":
-                baseUrl = "https://dilinkappoversea-br.byd.auto";
                 language = "pt";
                 timeZone = "America/Sao_Paulo";
                 break;
             case "MX":
-                baseUrl = "https://dilinkappoversea-mx.byd.auto";
                 language = "es";
                 timeZone = "America/Mexico_City";
                 break;
             case "NO":
-                baseUrl = "https://dilinkappoversea-no.byd.auto";
                 language = "no";
                 timeZone = "Europe/Oslo";
                 break;
             case "UZ":
-                baseUrl = "https://dilinkappoversea-uz.byd.auto";
-                language = "en";
                 timeZone = "Asia/Tashkent";
                 break;
             case "KZ":
-                baseUrl = "https://dilinkappoversea-kz.byd.auto";
-                language = "en";
                 timeZone = "Asia/Almaty";
                 break;
             case "IN":
-                baseUrl = "https://dilinkappoversea-in.byd.auto";
-                language = "en";
                 timeZone = "Asia/Kolkata";
                 break;
             case "ID":
-                baseUrl = "https://dilinkappoversea-id.byd.auto";
                 language = "in";
                 timeZone = "Asia/Jakarta";
                 break;
             case "VN":
-                baseUrl = "https://dilinkappoversea-vn.byd.auto";
+            case "VNM":
                 language = "vi";
                 timeZone = "Asia/Ho_Chi_Minh";
+                countryCode = "VNM";
+                break;
+            case "BN":
+            case "BRN":
+                timeZone = "Asia/Brunei";
+                countryCode = "BRN";
                 break;
             case "SA":
-                baseUrl = "https://dilinkappoversea-sa.byd.auto";
                 language = "ar";
                 timeZone = "Asia/Riyadh";
                 break;
             case "OM":
-                baseUrl = "https://dilinkappoversea-om.byd.auto";
                 language = "ar";
                 timeZone = "Asia/Muscat";
                 break;
+            case "TR":
+                language = "tr";
+                timeZone = "Europe/Istanbul";
+                break;
             default:
-                baseUrl = "https://dilinkappoversea-" + region.toLowerCase() + ".byd.auto";
                 break;
         }
+
         return new BydConfig(baseUrl, countryCode, language, timeZone);
+    }
+
+    /**
+     * Context-aware helper that can resolve full country metadata if available.
+     */
+    public static BydConfig fromCountry(Context context, String countryCode) {
+        if (context != null && countryCode != null) {
+            BydCountry country = BydCountryRepository.getInstance().findByDomain(context, countryCode);
+            if (country != null) {
+                return fromRegion(country.getDomain());
+            }
+        }
+        return fromRegion(countryCode);
     }
 
     @Deprecated
@@ -133,4 +177,3 @@ public class BydConfig {
     public String getTimeZone() { return timeZone; }
     public void setTimeZone(String timeZone) { this.timeZone = timeZone; }
 }
-

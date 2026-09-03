@@ -468,8 +468,12 @@ public class BydWatchKeyService {
                 treeMapM = new TreeMap<>();
                 treeMapM.put("timeStamp", reqTimestamp);
                 treeMapM.put("uuid", uuid);
-                // Use timezone ID like "Asia/Seoul" (NOT "GMT+9")
-                treeMapM.put("timeZone", java.util.TimeZone.getDefault().getID());
+                // Use configured timezone (e.g. "Europe/Dublin", "Asia/Seoul")
+                String tz = config.getTimeZone();
+                if (tz == null || tz.trim().isEmpty()) {
+                    tz = java.util.TimeZone.getDefault().getID();
+                }
+                treeMapM.put("timeZone", tz);
             }
         } else if (num != null && num == 5) {
             // getServerCurrentTime - confirmed: no deviceType in real watch traffic
@@ -504,8 +508,8 @@ public class BydWatchKeyService {
         treeMapM.put("watchBrand", WATCH_BRAND);
         treeMapM.put("watchAppVersion", String.valueOf(watchAppVersion));
         treeMapM.put("watchOs", "0");
-        treeMapM.put("reqTimestamp", reqTimestamp);
-        treeMapM.put("language", config.getLanguage() != null ? config.getLanguage() : "ko");
+        String lang = resolveLanguage(countryCode);
+        treeMapM.put("language", lang);
         treeMapM.put("countryCode", countryCode);
         
         // Step 4: Compute sign
@@ -516,7 +520,7 @@ public class BydWatchKeyService {
         outerJson.addProperty("countryCode", countryCode);
         outerJson.addProperty("encryData", encryData);
         outerJson.addProperty("identifier", countryCode);
-        outerJson.addProperty("language", config.getLanguage() != null ? config.getLanguage() : "ko");
+        outerJson.addProperty("language", lang);
         outerJson.addProperty("reqTimestamp", reqTimestamp);
         outerJson.addProperty("sign", sign);
         outerJson.addProperty("watchAppVersion", String.valueOf(watchAppVersion));
@@ -567,8 +571,8 @@ public class BydWatchKeyService {
         treeMapM.put("watchBrand", WATCH_BRAND);
         treeMapM.put("watchAppVersion", String.valueOf(watchAppVersion));
         treeMapM.put("watchOs", "0");
-        treeMapM.put("reqTimestamp", reqTimestamp);
-        treeMapM.put("language", config.getLanguage() != null ? config.getLanguage() : "ko");
+        String lang = resolveLanguage(countryCode);
+        treeMapM.put("language", lang);
         treeMapM.put("countryCode", countryCode);
         String userType = tokenInfo.getUserType() != null ? tokenInfo.getUserType() : "";
         treeMapM.put("userType", userType);
@@ -586,13 +590,21 @@ public class BydWatchKeyService {
         outerJson.addProperty("watchAppVersion", String.valueOf(watchAppVersion));
         outerJson.addProperty("watchOs", "0");
         outerJson.addProperty("reqTimestamp", reqTimestamp);
-        outerJson.addProperty("language", config.getLanguage() != null ? config.getLanguage() : "ko");
+        outerJson.addProperty("language", lang);
         outerJson.addProperty("countryCode", countryCode);
         outerJson.addProperty("userType", userType);
         outerJson.addProperty("encryData", encryData);
         outerJson.addProperty("sign", sign);
         
         return outerJson.toString();
+    }
+
+    private String resolveLanguage(String countryCode) {
+        String lang = config.getLanguage();
+        if (lang != null && !lang.trim().isEmpty()) {
+            return lang;
+        }
+        return "KR".equalsIgnoreCase(countryCode) ? "ko" : "en";
     }
 
     // ── Crypto helpers matching official watch app ──────────────────────

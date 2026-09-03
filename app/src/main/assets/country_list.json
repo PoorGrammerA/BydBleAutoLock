@@ -1,0 +1,933 @@
+{
+  "dataCenter": "global",
+  "countries": 116,
+  "dataNode": [
+    {
+      "code": "47",
+      "name": "挪威",
+      "alias": "Norway",
+      "domain": "NO",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "31",
+      "name": "荷兰",
+      "alias": "Netherlands",
+      "domain": "NL",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "49",
+      "name": "德国",
+      "alias": "Germany",
+      "domain": "DE",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "45",
+      "name": "丹麦",
+      "alias": "Denmark",
+      "domain": "DK",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "46",
+      "name": "瑞典",
+      "alias": "Sweden",
+      "domain": "SE",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "33",
+      "name": "法国",
+      "alias": "France",
+      "domain": "FR",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "43",
+      "name": "奥地利",
+      "alias": "Austria",
+      "domain": "AT",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "352",
+      "name": "卢森堡",
+      "alias": "Luxembourg",
+      "domain": "LU",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "32",
+      "name": "比利时",
+      "alias": "Belgium",
+      "domain": "BE",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "358",
+      "name": "芬兰",
+      "alias": "Finland",
+      "domain": "FI",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "39",
+      "name": "意大利",
+      "alias": "Italy",
+      "domain": "IT",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "34",
+      "name": "西班牙",
+      "alias": "Spain",
+      "domain": "ES",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "351",
+      "name": "葡萄牙",
+      "alias": "Portugal",
+      "domain": "PT",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "44",
+      "name": "英国",
+      "alias": "UK",
+      "domain": "GB",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "353",
+      "name": "爱尔兰",
+      "alias": "Ireland",
+      "domain": "IE",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "354",
+      "name": "冰岛",
+      "alias": "Iceland",
+      "domain": "IS",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "972",
+      "name": "以色列",
+      "alias": "Israel",
+      "domain": "IL",
+      "nodeName": "1",
+      "continent": "AS"
+    },
+    {
+      "code": "36",
+      "name": "匈牙利",
+      "alias": "Hungary",
+      "domain": "HU",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "356",
+      "name": "马耳他",
+      "alias": "Malta",
+      "domain": "MT",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "30",
+      "name": "希腊",
+      "alias": "Greece",
+      "domain": "GR",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "41",
+      "name": "瑞士",
+      "alias": "Swiss Confederation",
+      "domain": "CH",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "48",
+      "name": "波兰",
+      "alias": "Poland",
+      "domain": "PL",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "357",
+      "name": "塞浦路斯",
+      "alias": "The Republic of Cyprus",
+      "domain": "CY",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "372",
+      "name": "爱沙尼亚",
+      "alias": "Estonia",
+      "domain": "EE",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "371",
+      "name": "拉脱维亚",
+      "alias": "Latvia",
+      "domain": "LV",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "370",
+      "name": "立陶宛",
+      "alias": "Lithuania",
+      "domain": "LT",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "420",
+      "name": "捷克",
+      "alias": "Czech",
+      "domain": "CZ",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "40",
+      "name": "罗马尼亚",
+      "alias": "Romania",
+      "domain": "RO",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "421",
+      "name": "斯洛伐克",
+      "alias": "Slovakia",
+      "domain": "SK",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "386",
+      "name": "斯洛文尼亚",
+      "alias": "Slovenia",
+      "domain": "SI",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "359",
+      "name": "保加利亚",
+      "alias": "Bulgaria",
+      "domain": "BG",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "385",
+      "name": "克罗地亚",
+      "alias": "Croatia",
+      "domain": "HR",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "65",
+      "name": "新加坡",
+      "alias": "Singapore",
+      "domain": "SG",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "66",
+      "name": "泰国",
+      "alias": "Thailand",
+      "domain": "TH",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "60",
+      "name": "马来西亚",
+      "alias": "Malaysia",
+      "domain": "MY",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "852",
+      "name": "中国香港",
+      "alias": "HongKong,China",
+      "domain": "HK",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "853",
+      "name": "中国澳门",
+      "alias": "Macao,China",
+      "domain": "MO",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "855",
+      "name": "柬埔寨",
+      "alias": "Cambodia",
+      "domain": "KH",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "856",
+      "name": "老挝",
+      "alias": "Laos",
+      "domain": "LA",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "63",
+      "name": "菲律宾",
+      "alias": "Philippines",
+      "domain": "PH",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "673",
+      "name": "文莱",
+      "alias": "Brunei",
+      "domain": "BRN",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "95",
+      "name": "缅甸",
+      "alias": "Myanmar",
+      "domain": "MM",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "977",
+      "name": "尼泊尔",
+      "alias": "Nepal",
+      "domain": "NP",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "880",
+      "name": "孟加拉国",
+      "alias": "Bangladesh",
+      "domain": "BD",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "92",
+      "name": "巴基斯坦",
+      "alias": "Pakistan",
+      "domain": "PK",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "61",
+      "name": "澳大利亚",
+      "alias": "Australia",
+      "domain": "AU",
+      "nodeName": "3",
+      "continent": "OA"
+    },
+    {
+      "code": "64",
+      "name": "新西兰",
+      "alias": "New Zealand",
+      "domain": "NZ",
+      "nodeName": "3",
+      "continent": "OA"
+    },
+    {
+      "code": "55",
+      "name": "巴西",
+      "alias": "Brazil",
+      "domain": "BR",
+      "nodeName": "4",
+      "continent": "SA"
+    },
+    {
+      "code": "81",
+      "name": "日本",
+      "alias": "Japan",
+      "domain": "JP",
+      "nodeName": "5",
+      "continent": "AS"
+    },
+    {
+      "code": "998",
+      "name": "乌兹别克斯坦",
+      "alias": "Uzbekistan",
+      "domain": "UZ",
+      "nodeName": "6",
+      "continent": "AS"
+    },
+    {
+      "code": "970",
+      "name": "巴勒斯坦",
+      "alias": "Palestine",
+      "domain": "PS",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "971",
+      "name": "阿联酋",
+      "alias": "United Arab Emirates",
+      "domain": "AE",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "964",
+      "name": "伊拉克",
+      "alias": "Iraq",
+      "domain": "IQ",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "965",
+      "name": "科威特",
+      "alias": "Kuwait",
+      "domain": "KW",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "968",
+      "name": "阿曼",
+      "alias": "Oman",
+      "domain": "OM",
+      "nodeName": "15",
+      "continent": "AS"
+    },
+    {
+      "code": "974",
+      "name": "卡塔尔",
+      "alias": "Qatar",
+      "domain": "QA",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "212",
+      "name": "摩洛哥",
+      "alias": "Morocco",
+      "domain": "MA",
+      "nodeName": "7",
+      "continent": "AF"
+    },
+    {
+      "code": "973",
+      "name": "巴林",
+      "alias": "Bahrain",
+      "domain": "BH",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "962",
+      "name": "约旦",
+      "alias": "Jordan",
+      "domain": "JO",
+      "nodeName": "7",
+      "continent": "AS"
+    },
+    {
+      "code": "27",
+      "name": "南非",
+      "alias": "South Africa",
+      "domain": "ZA",
+      "nodeName": "7",
+      "continent": "AF"
+    },
+    {
+      "code": "262",
+      "name": "留尼旺",
+      "alias": "Reunion Island",
+      "domain": "RE",
+      "nodeName": "7",
+      "continent": "AF"
+    },
+    {
+      "code": "230",
+      "name": "毛里求斯",
+      "alias": "Mauritius",
+      "domain": "MU",
+      "nodeName": "7",
+      "continent": "AF"
+    },
+    {
+      "code": "484",
+      "name": "墨西哥",
+      "alias": "Mexico",
+      "domain": "MX",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "56",
+      "name": "智利",
+      "alias": "Chile",
+      "domain": "CL",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "598",
+      "name": "乌拉圭",
+      "alias": "Uruguay",
+      "domain": "UY",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "57",
+      "name": "哥伦比亚",
+      "alias": "Colombia",
+      "domain": "CO",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "1890",
+      "name": "多米尼加",
+      "alias": "Dominican Republic",
+      "domain": "DO",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "506",
+      "name": "哥斯达黎加",
+      "alias": "Costa Rica",
+      "domain": "CR",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "51",
+      "name": "秘鲁",
+      "alias": "Peru",
+      "domain": "PE",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "593",
+      "name": "厄瓜多尔",
+      "alias": "Ecuador",
+      "domain": "EC",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "595",
+      "name": "巴拉圭",
+      "alias": "Paraguay",
+      "domain": "PY",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "591",
+      "name": "玻利维亚",
+      "alias": "Bolivia",
+      "domain": "BO",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "507",
+      "name": "巴拿马",
+      "alias": "Panama",
+      "domain": "PA",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "502",
+      "name": "危地马拉",
+      "alias": "Guatemala",
+      "domain": "GT",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "503",
+      "name": "萨尔瓦多",
+      "alias": "El Salvador",
+      "domain": "SV",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "504",
+      "name": "洪都拉斯",
+      "alias": "Honduras",
+      "domain": "HN",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "505",
+      "name": "尼加拉瓜",
+      "alias": "Nicaragua",
+      "domain": "NI",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "62",
+      "name": "印度尼西亚",
+      "alias": "Indonesia",
+      "domain": "ID",
+      "nodeName": "9",
+      "continent": "AS"
+    },
+    {
+      "code": "90",
+      "name": "土耳其",
+      "alias": "Türkiye",
+      "domain": "TR",
+      "nodeName": "10",
+      "continent": "EU"
+    },
+    {
+      "code": "82",
+      "name": "韩国",
+      "alias": "Republic of Korea",
+      "domain": "KR",
+      "nodeName": "11",
+      "continent": "AS"
+    },
+    {
+      "code": "91",
+      "name": "印度",
+      "alias": "India",
+      "domain": "IN",
+      "nodeName": "12",
+      "continent": "AS"
+    },
+    {
+      "code": "84",
+      "name": "越南",
+      "alias": "Vietnam",
+      "domain": "VNM",
+      "nodeName": "13",
+      "continent": "AS"
+    },
+    {
+      "code": "423",
+      "name": "列支敦士登",
+      "alias": "Liechtenstein",
+      "domain": "LI",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "382",
+      "name": "黑山",
+      "alias": "Montenegro",
+      "domain": "ME",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "381",
+      "name": "塞尔维亚",
+      "alias": "Serbia",
+      "domain": "RS",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "387",
+      "name": "波黑",
+      "alias": "Bosnia and Herzegovina",
+      "domain": "BA",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "389",
+      "name": "北马其顿",
+      "alias": "North Macedonia",
+      "domain": "MK",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "355",
+      "name": "阿尔巴尼亚",
+      "alias": "Albania",
+      "domain": "AL",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "373",
+      "name": "摩尔多瓦",
+      "alias": "Moldova",
+      "domain": "MD",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "377",
+      "name": "摩纳哥",
+      "alias": "Monaco",
+      "domain": "MC",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "379",
+      "name": "梵蒂冈",
+      "alias": "Vatican City",
+      "domain": "VA",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "383",
+      "name": "科索沃",
+      "alias": "Kosovo",
+      "domain": "XK",
+      "nodeName": "1",
+      "continent": "EU"
+    },
+    {
+      "code": "54",
+      "name": "阿根廷",
+      "alias": "Argentina",
+      "domain": "AR",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "966",
+      "name": "沙特阿拉伯",
+      "alias": "Saudi Arabia",
+      "domain": "SA",
+      "nodeName": "14",
+      "continent": "AS"
+    },
+    {
+      "code": "997",
+      "name": "哈萨克斯坦",
+      "alias": "Kazakhstan",
+      "domain": "KZ",
+      "nodeName": "16",
+      "continent": "AS"
+    },
+    {
+      "code": "94",
+      "name": "斯里兰卡",
+      "alias": "Sri Lanka",
+      "domain": "LK",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "20",
+      "name": "埃及",
+      "alias": "Egypt",
+      "domain": "EG",
+      "nodeName": "7",
+      "continent": "AF"
+    },
+    {
+      "code": "689",
+      "name": "波利尼西亚",
+      "alias": "French Polynesia",
+      "domain": "PF",
+      "nodeName": "2",
+      "continent": "OA"
+    },
+    {
+      "code": "687",
+      "name": "新喀里多尼亚",
+      "alias": "New Caledonia",
+      "domain": "NC",
+      "nodeName": "2",
+      "continent": "OA"
+    },
+    {
+      "code": "976",
+      "name": "蒙古",
+      "alias": "Mongolia",
+      "domain": "MN",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "975",
+      "name": "不丹",
+      "alias": "Bhutan",
+      "domain": "BT",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "960",
+      "name": "马尔代夫",
+      "alias": "Maldives",
+      "domain": "MV",
+      "nodeName": "2",
+      "continent": "AS"
+    },
+    {
+      "code": "380",
+      "name": "乌克兰",
+      "alias": "Ukraine",
+      "domain": "UA",
+      "nodeName": "1",
+      "continent": "EU"
+    },{
+      "code": "501",
+      "name": "伯利兹",
+      "alias": "Belize",
+      "domain": "BZ",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "1242",
+      "name": "巴哈马",
+      "alias": "Bahamas",
+      "domain": "BS",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "297",
+      "name": "阿鲁巴",
+      "alias": "Aruba",
+      "domain": "AW",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "599",
+      "name": "库拉索",
+      "alias": "Curaçao",
+      "domain": "CW",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "5997",
+      "name": "博奈尔",
+      "alias": "Bonaire",
+      "domain": "BQ",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "1868",
+      "name": "特立尼达和多巴哥",
+      "alias": "Trinidad and Tobago",
+      "domain": "TT",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "1876",
+      "name": "牙买加",
+      "alias": "Jamaica",
+      "domain": "JM",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "597",
+      "name": "苏里南",
+      "alias": "Suriname",
+      "domain": "SR",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "1345",
+      "name": "开曼",
+      "alias": "Cayman Islands",
+      "domain": "KY",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "1268",
+      "name": "安提瓜",
+      "alias": "Antigua and Barbuda",
+      "domain": "AG",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "592",
+      "name": "圭亚那",
+      "alias": "Guyana",
+      "domain": "GY",
+      "nodeName": "8",
+      "continent": "SA"
+    },
+    {
+      "code": "1758",
+      "name": "圣卢西亚",
+      "alias": "Saint Lucia",
+      "domain": "LC",
+      "nodeName": "8",
+      "continent": "NA"
+    },
+    {
+      "code": "1246",
+      "name": "巴巴多斯",
+      "alias": "Barbados",
+      "domain": "BB",
+      "nodeName": "8",
+      "continent": "NA"
+    }
+  ]
+}

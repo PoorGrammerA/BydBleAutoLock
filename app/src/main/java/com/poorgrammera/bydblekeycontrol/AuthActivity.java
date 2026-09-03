@@ -35,6 +35,8 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.poorgrammera.bydautolock.bydapi.BydConfig;
+import com.poorgrammera.bydautolock.bydapi.BydCountry;
+import com.poorgrammera.bydautolock.bydapi.BydCountryRepository;
 import com.poorgrammera.bydautolock.bydapi.BydWatchKeyService;
 import com.poorgrammera.bydautolock.bydapi.WatchCredentialManager;
 import com.poorgrammera.bydautolock.model.QrCodeInfo;
@@ -56,14 +58,7 @@ public class AuthActivity extends AppCompatActivity {
     private static final int REQUEST_BLUETOOTH_PERMISSIONS = 2001;
     private static final long QR_POLL_MS = 2000L;
     private static final String BYD_AUTO_LINK_PACKAGE = "com.byd.bydautolink";
-    private static final String[] REGION_CODES = {
-            "KR", "EU", "JP", "SG", "AU", "BR", "MX", "NO", "UZ", "KZ", "IN", "ID", "VN", "SA", "OM"
-    };
-    private static final int[] REGION_LABEL_IDS = {
-            R.string.region_kr, R.string.region_eu, R.string.region_jp, R.string.region_sg, R.string.region_au,
-            R.string.region_br, R.string.region_mx, R.string.region_no, R.string.region_uz, R.string.region_kz,
-            R.string.region_in, R.string.region_id, R.string.region_vn, R.string.region_sa, R.string.region_om
-    };
+    private final List<BydCountry> countryOptions = new ArrayList<>();
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private StorageManager storage;
@@ -252,28 +247,42 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void setupRegionSelector() {
-        String[] regionLabels = new String[REGION_LABEL_IDS.length];
-        for (int i = 0; i < REGION_LABEL_IDS.length; i++) regionLabels[i] = getString(REGION_LABEL_IDS[i]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_region_dropdown, regionLabels);
+        countryOptions.clear();
+        countryOptions.addAll(BydCountryRepository.getInstance().getCountries(this));
+
+        ArrayAdapter<BydCountry> adapter = new ArrayAdapter<>(this, R.layout.item_region_dropdown, countryOptions);
         adapter.setDropDownViewResource(R.layout.item_region_dropdown);
         regionDropdown.setAdapter(adapter);
+
         String initialRegion = storage.hasRegion() ? supportedRegion(storage.getRegion()) : detectDeviceRegion();
         applyRegion(initialRegion, true);
+
         regionDropdown.setOnItemClickListener((parent, view, position, id) -> {
             if (waitingForQr || provisioning) {
                 Toast.makeText(this, R.string.auth_region_change_locked, Toast.LENGTH_SHORT).show();
                 return;
             }
-            applyRegion(REGION_CODES[position], true);
-            showQrReady();
+            BydCountry selectedCountry = adapter.getItem(position);
+            if (selectedCountry != null && selectedCountry.getDomain() != null) {
+                applyRegion(selectedCountry.getDomain(), true);
+                showQrReady();
+            }
         });
     }
 
     private void applyRegion(String region, boolean persist) {
         String selected = supportedRegion(region);
-        int index = regionIndex(selected);
         if (persist) storage.setRegion(selected);
-        regionDropdown.setText(getString(REGION_LABEL_IDS[index]), false);
+
+        BydCountry country = BydCountryRepository.getInstance().findByDomain(this, selected);
+        if (country != null) {
+            regionDropdown.setText(country.getDisplayName(), false);
+        } else if ("EU".equalsIgnoreCase(selected)) {
+            regionDropdown.setText("Europe (EU)", false);
+        } else {
+            regionDropdown.setText(selected, false);
+        }
+
         BydConfig config = BydConfig.fromRegion(selected);
         watchService = new BydWatchKeyService(this, config);
         regionDomain.setText(getString(R.string.auth_region_server, config.getBaseUrl()));
@@ -307,9 +316,12 @@ public class AuthActivity extends AppCompatActivity {
 
     /** Uses device country first, then language and timezone. GPS permission is intentionally not required. */
     private String detectDeviceRegion() {
-        String country = Locale.getDefault().getCountry().toUpperCase(Locale.US);
-        if (regionIndex(country) >= 0) return country;
-        if (isEuropeanCountry(country)) return "EU";
+        String rawCountry = Locale.getDefault().getCountry();
+        String country = BydCountryRepository.normalizeCountryCode(rawCountry);
+        if (country != null && BydCountryRepository.getInstance().findByDomain(this, country) != null) {
+            return country;
+        }
+        if (rawCountry != null && isEuropeanCountry(rawCountry.toUpperCase(Locale.US))) return "EU";
 
         String language = Locale.getDefault().getLanguage().toLowerCase(Locale.US);
         if ("ko".equals(language)) return "KR";
@@ -318,7 +330,8 @@ public class AuthActivity extends AppCompatActivity {
         if ("es".equals(language)) return "MX";
         if ("no".equals(language)) return "NO";
         if ("id".equals(language) || "in".equals(language)) return "ID";
-        if ("vi".equals(language)) return "VN";
+        if ("vi".equals(language)) return "VNM";
+        if ("tr".equals(language)) return "TR";
 
         String zone = TimeZone.getDefault().getID();
         if (zone.startsWith("Asia/Seoul")) return "KR";
@@ -337,15 +350,15 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private String supportedRegion(String region) {
-        return regionIndex(region == null ? "" : region.toUpperCase(Locale.US)) >= 0
-                ? region.toUpperCase(Locale.US) : "KR";
-    }
-
-    private int regionIndex(String region) {
-        for (int i = 0; i < REGION_CODES.length; i++) {
-            if (REGION_CODES[i].equalsIgnoreCase(region)) return i;
+        if (region == null || region.trim().isEmpty()) return "KR";
+        String normalized = BydCountryRepository.normalizeCountryCode(region);
+        if (BydCountryRepository.getInstance().findByDomain(this, normalized) != null) {
+            return normalized;
         }
-        return -1;
+        if ("EU".equalsIgnoreCase(normalized)) {
+            return "EU";
+        }
+        return "KR";
     }
 
     private void openVehicleControl() {
