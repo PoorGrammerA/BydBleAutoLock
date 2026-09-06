@@ -74,6 +74,10 @@ public class DevTestActivity extends AppCompatActivity {
     private String currentVehicleMac;
     private String currentUuid;
     private TokenInfoBean currentToken;
+    private final com.google.gson.Gson prettyGson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+    private final String[] stepEndpoints = new String[6];
+    private final String[] stepRequests = new String[6];
+    private final String[] stepResponses = new String[6];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -571,8 +575,12 @@ public class DevTestActivity extends AppCompatActivity {
     }
 
     private void createQr() {
+        recordStepTrace(1, null, null, null);
         updateLog(1, "Creating QR code...");
         watchKeyService.createQrCode(new BydWatchKeyService.Callback<QrCodeInfo>() {
+            @Override public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                runOnUiThread(() -> recordStepTrace(1, endpoint, requestPlain, responsePlain));
+            }
             @Override public void onSuccess(QrCodeInfo result) {
                 runOnUiThread(() -> {
                     if (result == null || result.getUuid() == null || result.getUuid().isEmpty()) {
@@ -585,25 +593,37 @@ public class DevTestActivity extends AppCompatActivity {
                     showQrCode(currentUuid);
                 });
             }
-            @Override public void onError(String message, Throwable error) { runOnUiThread(() -> updateLog(1, "Error: " + message)); }
+            @Override public void onError(String message, Throwable error) {
+                runOnUiThread(() -> updateLog(1, "Error: " + message));
+            }
         });
     }
 
     private void checkQrStatus() {
         if (!requireUuid()) return;
+        recordStepTrace(2, null, null, null);
         updateLog(2, "Checking QR status...");
         watchKeyService.getQrCodeStatus(currentUuid, new BydWatchKeyService.Callback<QrCodeState>() {
+            @Override public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                runOnUiThread(() -> recordStepTrace(2, endpoint, requestPlain, responsePlain));
+            }
             @Override public void onSuccess(QrCodeState result) {
                 runOnUiThread(() -> updateLog(2, "Result: status=" + (result == null ? "null" : result.getCodeStatus())));
             }
-            @Override public void onError(String message, Throwable error) { runOnUiThread(() -> updateLog(2, "Error: " + message)); }
+            @Override public void onError(String message, Throwable error) {
+                runOnUiThread(() -> updateLog(2, "Error: " + message));
+            }
         });
     }
 
     private void gainToken() {
         if (!requireUuid()) return;
+        recordStepTrace(3, null, null, null);
         updateLog(3, "Gaining token...");
         watchKeyService.getToken(currentUuid, null, new BydWatchKeyService.Callback<TokenInfoBean>() {
+            @Override public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                runOnUiThread(() -> recordStepTrace(3, endpoint, requestPlain, responsePlain));
+            }
             @Override public void onSuccess(TokenInfoBean token) {
                 runOnUiThread(() -> {
                     currentToken = token;
@@ -617,14 +637,20 @@ public class DevTestActivity extends AppCompatActivity {
                     updateLog(3, "Success: userId=" + token.getIdentifier() + ", VIN=" + token.getVin());
                 });
             }
-            @Override public void onError(String message, Throwable error) { runOnUiThread(() -> updateLog(3, "Error: " + message)); }
+            @Override public void onError(String message, Throwable error) {
+                runOnUiThread(() -> updateLog(3, "Error: " + message));
+            }
         });
     }
 
     private void gainVehicle() {
         if (!requireToken()) return;
+        recordStepTrace(4, null, null, null);
         updateLog(4, "Gaining vehicle configuration...");
         watchKeyService.getVehicleConfig(currentToken, new BydWatchKeyService.Callback<com.google.gson.JsonObject>() {
+            @Override public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                runOnUiThread(() -> recordStepTrace(4, endpoint, requestPlain, responsePlain));
+            }
             @Override public void onSuccess(com.google.gson.JsonObject result) {
                 runOnUiThread(() -> {
                     String serverMac = cacheVehicleBluetoothInfo(result);
@@ -636,14 +662,20 @@ public class DevTestActivity extends AppCompatActivity {
                     updateSelectedDevice();
                 });
             }
-            @Override public void onError(String message, Throwable error) { runOnUiThread(() -> updateLog(4, "Error: " + message)); }
+            @Override public void onError(String message, Throwable error) {
+                runOnUiThread(() -> updateLog(4, "Error: " + message));
+            }
         });
     }
 
     private void gainBluetoothKey() {
         if (!requireToken()) return;
+        recordStepTrace(5, null, null, null);
         updateLog(5, "Gaining Bluetooth key...");
         watchKeyService.getWatchBlueInfo(currentToken, new BydWatchKeyService.Callback<WatchBlueToothKeyStatInfo>() {
+            @Override public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                runOnUiThread(() -> recordStepTrace(5, endpoint, requestPlain, responsePlain));
+            }
             @Override public void onSuccess(WatchBlueToothKeyStatInfo key) {
                 runOnUiThread(() -> {
                     if (key == null || key.getDk() == null) { updateLog(5, "Failed: empty BLE key returned"); return; }
@@ -656,7 +688,9 @@ public class DevTestActivity extends AppCompatActivity {
                     updateLog(5, "Success: dkey=" + abbreviate(key.getDk()) + ", API MAC=" + key.getBluetoothMacAddress());
                 });
             }
-            @Override public void onError(String message, Throwable error) { runOnUiThread(() -> updateLog(5, "Error: " + message)); }
+            @Override public void onError(String message, Throwable error) {
+                runOnUiThread(() -> updateLog(5, "Error: " + message));
+            }
         });
     }
 
@@ -1034,7 +1068,48 @@ public class DevTestActivity extends AppCompatActivity {
 
     private void updateSelectedDevice() { if (selectedDevice != null) { String mac = resolveVehicleMac(); selectedDevice.setText(isEmpty(mac) ? "Vehicle BLE MAC: run step 4, Gain Vehicle" : "Vehicle BLE MAC (server-provided): " + mac); } }
     private void loadLogs() { for (int i = 1; i <= 6; i++) { String log = storage.getWatchStepLog(i); if (!log.isEmpty()) stepLogs[i - 1].setText(log); } }
-    private void updateLog(int step, String message) { String text = step + ". " + stepName(step) + " [" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()) + "]\n   " + message; storage.setWatchStepLog(step, text); stepLogs[step - 1].setText(text); }
+    private String formatJsonOrString(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return "(empty)";
+        try {
+            JsonElement elem = JsonParser.parseString(raw);
+            return prettyGson.toJson(elem);
+        } catch (Exception e) {
+            return raw;
+        }
+    }
+
+    private void recordStepTrace(int step, String endpoint, String requestPlain, String responsePlain) {
+        if (step >= 1 && step <= 6) {
+            stepEndpoints[step - 1] = endpoint;
+            stepRequests[step - 1] = requestPlain;
+            stepResponses[step - 1] = responsePlain;
+        }
+    }
+
+    private void updateLog(int step, String message) {
+        String endpoint = (step >= 1 && step <= 6) ? stepEndpoints[step - 1] : null;
+        String req = (step >= 1 && step <= 6) ? stepRequests[step - 1] : null;
+        String resp = (step >= 1 && step <= 6) ? stepResponses[step - 1] : null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(step).append(". ").append(stepName(step))
+          .append(" [").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date())).append("]\n");
+        sb.append("   ▶ Status: ").append(message);
+
+        if (!isEmpty(endpoint)) {
+            sb.append("\n\n   [Endpoint]\n   ").append(endpoint);
+        }
+        if (!isEmpty(req)) {
+            sb.append("\n\n   [Request (Plain)]\n").append(formatJsonOrString(req));
+        }
+        if (!isEmpty(resp)) {
+            sb.append("\n\n   [Response (Plain)]\n").append(formatJsonOrString(resp));
+        }
+
+        String text = sb.toString();
+        storage.setWatchStepLog(step, text);
+        stepLogs[step - 1].setText(text);
+    }
     private String stepName(int step) { String[] names = {"Create QR", "Check Status", "Gain Token", "Gain Vehicle", "Gain Bluetooth", "Connect BLE"}; return names[step - 1]; }
     private String abbreviate(String value) { return value == null ? "null" : value.substring(0, Math.min(value.length(), 12)) + (value.length() > 12 ? "..." : ""); }
     private boolean isEmpty(String value) { return value == null || value.trim().isEmpty(); }

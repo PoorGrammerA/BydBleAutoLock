@@ -68,6 +68,20 @@ public class BydWatchKeyService {
     public interface Callback<T> {
         void onSuccess(T result);
         void onError(String msg, Throwable t);
+        default void onTrace(String endpoint, String requestPlain, String responsePlain) {}
+    }
+
+    public static class PreparedRequest {
+        private final String outerJson;
+        private final String plainJson;
+
+        public PreparedRequest(String outerJson, String plainJson) {
+            this.outerJson = outerJson;
+            this.plainJson = plainJson;
+        }
+
+        public String getOuterJson() { return outerJson; }
+        public String getPlainJson() { return plainJson; }
     }
 
     // ── Public API methods ─────────────────────────────────────────────
@@ -75,9 +89,9 @@ public class BydWatchKeyService {
     public void getServerCurrentTime(Callback<String> callback) {
         try {
             String countryCode = getCountryCode();
-            String outerJson = buildUnLoginParamsJson(null, 5, null);
+            PreparedRequest req = buildUnLoginParamsJson(null, 5, null);
             String decryptKey = CryptoUtils.md5Hex(countryCode).toLowerCase();
-            executeRequest("watch/login/getServerCurrentTime", outerJson, decryptKey, String.class, callback);
+            executeRequest("watch/login/getServerCurrentTime", req, decryptKey, String.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getServerCurrentTime error", t);
             callback.onError("Server time synchronization failed: " + t.getMessage(), t);
@@ -87,9 +101,9 @@ public class BydWatchKeyService {
     public void createQrCode(Callback<QrCodeInfo> callback) {
         try {
             String countryCode = getCountryCode();
-            String outerJson = buildUnLoginParamsJson(null, null, null);
+            PreparedRequest req = buildUnLoginParamsJson(null, null, null);
             String decryptKey = CryptoUtils.md5Hex(countryCode).toLowerCase();
-            executeRequest("watch/login/create/qrcode", outerJson, decryptKey, QrCodeInfo.class, callback);
+            executeRequest("watch/login/create/qrcode", req, decryptKey, QrCodeInfo.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "createQrCode error", t);
             callback.onError("QR creation failed: " + t.getMessage(), t);
@@ -99,9 +113,9 @@ public class BydWatchKeyService {
     public void getQrCodeStatus(String uuid, Callback<QrCodeState> callback) {
         try {
             String countryCode = getCountryCode();
-            String outerJson = buildUnLoginParamsJson(null, 1, uuid);
+            PreparedRequest req = buildUnLoginParamsJson(null, 1, uuid);
             String decryptKey = CryptoUtils.md5Hex(countryCode).toLowerCase();
-            executeRequest("watch/login/check/qrcode", outerJson, decryptKey, QrCodeState.class, callback);
+            executeRequest("watch/login/check/qrcode", req, decryptKey, QrCodeState.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getQrCodeStatus error", t);
             callback.onError("QR status request failed: " + t.getMessage(), t);
@@ -117,10 +131,10 @@ public class BydWatchKeyService {
         try {
             String countryCode = getCountryCode();
             // appChannel is ignored — real traffic doesn't include it
-            String outerJson = buildUnLoginParamsJson(null, 2, uuid);
+            PreparedRequest req = buildUnLoginParamsJson(null, 2, uuid);
             String decryptKey = CryptoUtils.md5Hex(countryCode).toLowerCase();
             // Response is wrapped: {"watchTokenInfo":{...}, "controlPwd":"..."}
-            executeRequest("watch/login/gain/token", outerJson, decryptKey, TokenResponse.class, new Callback<TokenResponse>() {
+            executeRequest("watch/login/gain/token", req, decryptKey, TokenResponse.class, new Callback<TokenResponse>() {
                 @Override
                 public void onSuccess(TokenResponse result) {
                     if (result != null && result.getWatchTokenInfo() != null) {
@@ -135,6 +149,10 @@ public class BydWatchKeyService {
                 @Override
                 public void onError(String msg, Throwable t) {
                     callback.onError(msg, t);
+                }
+                @Override
+                public void onTrace(String endpoint, String requestPlain, String responsePlain) {
+                    callback.onTrace(endpoint, requestPlain, responsePlain);
                 }
             });
         } catch (Throwable t) {
@@ -153,9 +171,9 @@ public class BydWatchKeyService {
             TreeMap<String, String> rawParams = new TreeMap<>();
             rawParams.put("appVersion", "2");
             rawParams.put("vin", tokenInfo.getVin());
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/login/gain/vehicle", outerJson, decryptKey, JsonObject.class, callback);
+            executeRequest("watch/login/gain/vehicle", req, decryptKey, JsonObject.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getVehicleConfig error", t);
             callback.onError("Vehicle information request failed: " + t.getMessage(), t);
@@ -172,9 +190,9 @@ public class BydWatchKeyService {
             TreeMap<String, String> rawParams = new TreeMap<>();
             rawParams.put("appVersion", "2");
             rawParams.put("vin", tokenInfo.getVin());
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/login/gain/bluetooth", outerJson, decryptKey, WatchBlueToothKeyStatInfo.class, callback);
+            executeRequest("watch/login/gain/bluetooth", req, decryptKey, WatchBlueToothKeyStatInfo.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getWatchBlueInfo error", t);
             callback.onError("Bluetooth key request failed: " + t.getMessage(), t);
@@ -225,9 +243,9 @@ public class BydWatchKeyService {
             if (!isBlank(controlParamsMap)) {
                 rawParams.put("controlParamsMap", controlParamsMap);
             }
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/control/vehicleControl", outerJson, decryptKey,
+            executeRequest("watch/control/vehicleControl", req, decryptKey,
                     RemoteControlStartResponse.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "sendRemoteControl error", t);
@@ -244,9 +262,9 @@ public class BydWatchKeyService {
             }
             TreeMap<String, String> rawParams = new TreeMap<>();
             rawParams.put("vin", tokenInfo.getVin());
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/vehicle/vehicleRealTimeRequest", outerJson, decryptKey,
+            executeRequest("watch/vehicle/vehicleRealTimeRequest", req, decryptKey,
                     RemoteControlStartResponse.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "requestVehicleRealtime error", t);
@@ -265,9 +283,9 @@ public class BydWatchKeyService {
             TreeMap<String, String> rawParams = new TreeMap<>();
             rawParams.put("vin", tokenInfo.getVin());
             rawParams.put("requestSerial", requestSerial);
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/vehicle/vehicleRealTimeResult", outerJson, decryptKey,
+            executeRequest("watch/vehicle/vehicleRealTimeResult", req, decryptKey,
                     JsonObject.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getVehicleRealtimeResult error", t);
@@ -285,9 +303,9 @@ public class BydWatchKeyService {
             TreeMap<String, String> rawParams = new TreeMap<>();
             rawParams.put("vin", tokenInfo.getVin());
             rawParams.put("airConditioningMode", "1");
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/control/getAirConditionNow", outerJson, decryptKey,
+            executeRequest("watch/control/getAirConditionNow", req, decryptKey,
                     JsonObject.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getAirConditionNow error", t);
@@ -307,9 +325,9 @@ public class BydWatchKeyService {
             rawParams.put("vin", tokenInfo.getVin());
             rawParams.put("requestSerial", requestSerial);
             rawParams.put("commandType", commandType);
-            String outerJson = buildLoginParamsJson(rawParams, tokenInfo);
+            PreparedRequest req = buildLoginParamsJson(rawParams, tokenInfo);
             String decryptKey = CryptoUtils.md5Hex(tokenInfo.getEncryToken()).toLowerCase();
-            executeRequest("watch/control/vehicleControlResult", outerJson, decryptKey,
+            executeRequest("watch/control/vehicleControlResult", req, decryptKey,
                     RemoteControlResult.class, callback);
         } catch (Throwable t) {
             Log.e(TAG, "getRemoteControlResult error", t);
@@ -322,7 +340,14 @@ public class BydWatchKeyService {
     }
 
     private <T> void executeRequest(String endpoint, String outerJson, String decryptKey, Class<T> responseClass, Callback<T> callback) {
+        executeRequest(endpoint, new PreparedRequest(outerJson, outerJson), decryptKey, responseClass, callback);
+    }
+
+    private <T> void executeRequest(String endpoint, PreparedRequest preparedRequest, String decryptKey, Class<T> responseClass, Callback<T> callback) {
         try {
+            String outerJson = preparedRequest.getOuterJson();
+            String requestPlain = preparedRequest.getPlainJson();
+
             // Send the outer JSON DIRECTLY as HTTP body (no Bangcle wrapping)
             RequestBody body = RequestBody.create(
                     outerJson,
@@ -341,6 +366,7 @@ public class BydWatchKeyService {
             httpClient.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
+                    callback.onTrace(endpoint, requestPlain, "Network error: " + e.getMessage());
                     callback.onError("Network error", e);
                 }
 
@@ -358,6 +384,7 @@ public class BydWatchKeyService {
                         }
                         
                         if (responseStr.isEmpty()) {
+                            callback.onTrace(endpoint, requestPlain, rawResp);
                             callback.onError("Malformed server response (missing response field)", null);
                             return;
                         }
@@ -370,6 +397,7 @@ public class BydWatchKeyService {
                         if (!"0".equals(code)) {
                             Log.e(TAG, "[" + endpoint + "] Server error: code=" + code + " message=" + message);
                             String classified = classifyErrorCode(code);
+                            callback.onTrace(endpoint, requestPlain, responseStr);
                             callback.onError("Server error: " + message + " (" + code + ", " + classified + ")", null);
                             return;
                         }
@@ -381,12 +409,14 @@ public class BydWatchKeyService {
                         }
                         
                         if (encryptedBusinessData.isEmpty()) {
+                            callback.onTrace(endpoint, requestPlain, responseStr);
                             callback.onSuccess(null);
                             return;
                         }
                         
                         String decryptedBusinessJson = CryptoUtils.aesDecryptUtf8(encryptedBusinessData, decryptKey);
                         logFullBusinessData(endpoint, decryptedBusinessJson);
+                        callback.onTrace(endpoint, requestPlain, decryptedBusinessJson);
                         
                         T result;
                         if (responseClass == String.class) {
@@ -408,6 +438,7 @@ public class BydWatchKeyService {
                         
                     } catch (Throwable t) {
                         Log.e(TAG, "executeRequest response parsing error", t);
+                        callback.onTrace(endpoint, requestPlain, "Response processing error: " + t.getMessage());
                         callback.onError("Response processing error: " + t.getMessage(), t);
                     }
                 }
@@ -415,6 +446,7 @@ public class BydWatchKeyService {
             
         } catch (Throwable t) {
             Log.e(TAG, "executeRequest error", t);
+            callback.onTrace(endpoint, preparedRequest != null ? preparedRequest.getPlainJson() : "N/A", "Request creation error: " + t.getMessage());
             callback.onError("Request creation error: " + t.getMessage(), t);
         }
     }
@@ -444,14 +476,14 @@ public class BydWatchKeyService {
      * 4. Compute sign = SHA1Mixed(sorted key=value& pairs + password=MD5(countryCode))
      * 5. Build final JSON
      */
-    private String buildUnLoginParamsJson(Map<String, String> rawParams, Integer num, String uuid) throws Exception {
+    private PreparedRequest buildUnLoginParamsJson(Map<String, String> rawParams, Integer num, String uuid) throws Exception {
         String countryCode = getCountryCode();
         String reqTimestamp = String.valueOf(System.currentTimeMillis() + timeDifference);
         String randomUUID = generateRandom();
         String watchImei = deviceInfo.imeiMd5();
         String watchAppVersion = deviceInfo.appVersionCodeString();
         
-        // Step 1: Build inner params based on endpoint type
+        // Step 1: Build inner params (exact field set varies per endpoint)
         TreeMap<String, String> treeMapM;
         if (uuid != null) {
             if (num != null && num == 1) {
@@ -464,7 +496,7 @@ public class BydWatchKeyService {
                 treeMapM.put("uuid", uuid);
             } else {
                 // gain/token (num=2) — confirmed via HTTP capture:
-                // inner params = {timeStamp, timeZone:"Asia/Seoul", uuid}
+                // inner params = {timeStamp, timeZone, uuid}
                 treeMapM = new TreeMap<>();
                 treeMapM.put("timeStamp", reqTimestamp);
                 treeMapM.put("uuid", uuid);
@@ -496,6 +528,9 @@ public class BydWatchKeyService {
             treeMapM.putAll(rawParams);
         }
         
+        // Capture plain inner JSON before encryption
+        String innerPlainJson = gson.toJson(treeMapM);
+
         // Step 2: Encrypt inner params → encryData
         String md5CountryHex = CryptoUtils.md5Hex(countryCode); // uppercase
         String encryData = encryptTreeMap(treeMapM, md5CountryHex);
@@ -533,14 +568,14 @@ public class BydWatchKeyService {
         
         String result = outerJson.toString();
         Log.d(TAG, "buildUnLoginParamsJson result: " + result.substring(0, Math.min(300, result.length())) + "...");
-        return result;
+        return new PreparedRequest(result, innerPlainJson);
     }
 
     /**
      * Builds the WatchCommonRequest JSON for logged-in endpoints.
      * Mirrors j.a() in the official watch app.
      */
-    private String buildLoginParamsJson(Map<String, String> rawParams, TokenInfoBean tokenInfo) throws Exception {
+    private PreparedRequest buildLoginParamsJson(Map<String, String> rawParams, TokenInfoBean tokenInfo) throws Exception {
         String countryCode = getCountryCode();
         String reqTimestamp = String.valueOf(System.currentTimeMillis() + timeDifference);
         String randomUUID = generateRandom();
@@ -559,6 +594,9 @@ public class BydWatchKeyService {
             treeMapM.putAll(rawParams);
         }
         
+        // Capture plain inner JSON before encryption
+        String innerPlainJson = gson.toJson(treeMapM);
+
         // Encrypt with MD5(encryToken)
         String encryToken = tokenInfo.getEncryToken();
         String encryptKeyHex = CryptoUtils.md5Hex(encryToken); // uppercase hex
@@ -598,7 +636,7 @@ public class BydWatchKeyService {
         outerJson.addProperty("encryData", encryData);
         outerJson.addProperty("sign", sign);
         
-        return outerJson.toString();
+        return new PreparedRequest(outerJson.toString(), innerPlainJson);
     }
 
     private String resolveLanguage(String countryCode) {
