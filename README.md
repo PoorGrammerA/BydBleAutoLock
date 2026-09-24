@@ -70,6 +70,14 @@ Command-line checks on Windows:
 
 The release build is unsigned unless you configure your own signing key. Never commit a keystore, signing password, `local.properties`, exported QR image, or captured vehicle log.
 
+## Bluetooth key prerequisite
+
+> **Required:** Before this PoC can work, use the vehicle's Bluetooth Key lock/unlock control in the official BYD app at least once while the phone is near the vehicle. The feature must be enabled for that vehicle in the official app.
+
+![Bluetooth Key status and lock controls in the official BYD app](byd_app_ble.jpg)
+
+Bluetooth Key support varies by region. In regions where it is not supported, the feature may be unavailable in the official BYD app and this BLE authentication flow cannot be used.
+
 ## Basic use
 
 1. Grant Bluetooth and notification permissions.
